@@ -69,7 +69,7 @@ class EntriesController extends Controller
     /**
      * Deletes an Entry
     */
-    public function destroy(Request $request, $id)
+    public function delete(Request $request, $id)
     {
         $Entries = Entries::find($id);
         if($Entries)

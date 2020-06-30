@@ -8,7 +8,7 @@ class Entries extends Model
 {
     protected $table = 'entries';
 
-    public function author()
+    public function user()
     {
         return $this->belongsTo('App\User', 'user_id');
     }
