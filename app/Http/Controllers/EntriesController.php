@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Exception\RequestException;
+
 use App\Models\Entries;
-use App\Http\Requests\PostFormRequest;
+use App\Http\Requests\EntryFormRequest;
+use Auth;
 
 class EntriesController extends Controller
 {
@@ -45,13 +50,14 @@ class EntriesController extends Controller
 
         $duplicate = Entries::where('slug', $Entry->slug)->first();
         if ($duplicate) 
-            return redirect('new-post')->withErrors('A blog post with this title already exists.')->withInput();
+            return back()->withErrors('A blog entry with this title already exists.')->withInput();
 
-        $Entry->user_id = $request->user()->id;
+        $Entry->user_id = Auth::id();
+
         if (!$Entry->save())
             return redirect('new-post')->withErrors('There was an error while saving your entry.')->withInput();
 
-        return redirect('edit/'.$Entry->slug)->withMessage("Your blog post was saved successfully!");
+        return redirect()->route('users.myEntries')->withMessage("Your blog entry was saved successfully!");
     }
 
     /**
@@ -67,17 +73,36 @@ class EntriesController extends Controller
     }
 
     /**
-     * Deletes an Entry
+     * Imports entries from https://sq1-api-test.herokuapp.com/posts
     */
-    public function delete(Request $request, $id)
+    public function import(Request $request)
     {
-        $Entries = Entries::find($id);
-        if($Entries)
+        $Entries = $request->get('entries');
+        $message = new \stdClass();
+
+        foreach ($Entries as $entry)
         {
-            $post->delete();
-            $data['message'] = 'Post deleted Successfully';
+            $Entry = new Entries();
+            $Entry->title = $entry["title"];
+            $Entry->description = $entry["description"];
+            $Entry->slug = Str::slug($entry["title"]);
+
+            $duplicate = Entries::where('slug', $Entry->slug)->first();
+            if (!$duplicate) 
+            {
+                $Entry->user_id = 1;
+
+                if (!$Entry->save())
+                {
+                    $message->notifColor = "red";
+                    $message->message = "There was an error, please try again";
+                    return json_encode((array) $message);
+                }
+            }
         }
-        
-        return redirect('/')->with($data);
+         
+        $message->notifColor = "green";
+        $message->message = "The entries where added successfully";
+        return json_encode((array) $message);
     }
 }

@@ -14,25 +14,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', ['as' => 'home', 'uses' => 'EntriesController@index']);
+Route::get('/home', ['as' => 'home', 'uses' => 'EntriesController@index']);
 
 //authentication
-Route::get('/logout', 'UserController@logout');
-Route::group(['prefix' => 'auth'], function () {
-  Auth::routes();
-});
+Auth::routes();
+Route::get('logout', 'Auth\LoginController@logout');
 
-Route::get('entries/{slug}', ['as' => 'entries.show', 'uses' => 'EntriesController@show'])->where('slug', '[A-Za-z0-9-_]+');
+Route::get('entries/post/{slug}', ['as' => 'entries.show', 'uses' => 'EntriesController@show'])->where('slug', '[A-Za-z0-9-_]+');
 
 // check for logged in user
 Route::middleware(['auth'])->group(function () {
 
     Route::group(['prefix' => 'entries'], function () {
-        // show new post form
+        // show new entry form
         Route::get('create', ['as' => 'entries.create', 'uses' => 'EntriesController@create']);
-        // save new post
-        Route::post('store', ['as' => 'entries.store', 'uses' => 'EntriesController@create']);
-        // delete post
-        Route::get('delete/{id}', ['as' => 'entries.delete', 'uses' => 'EntriesController@delete']);
+        // save new entry
+        Route::post('store', ['as' => 'entries.store', 'uses' => 'EntriesController@store']);
+        // import entries
+        Route::post('import', ['as' => 'entries.import', 'uses' => 'EntriesController@import']);
     });
 
     Route::group(['prefix' => 'user'], function () {

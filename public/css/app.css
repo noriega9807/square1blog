@@ -18036,6 +18036,11 @@ video {
   }
 }
 
+.scrollable {
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
+}
+
 @media (min-width: 640px) {
   .sm\:space-y-0 > :not(template) ~ :not(template) {
     --space-y-reverse: 0;
