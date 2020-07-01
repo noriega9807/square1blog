@@ -33,6 +33,6 @@
         </div>
     </div>
   @endforeach
-  {{ $entries->links() }}
+  {{ $entries->appends(['sortBy' => $sort])->links() }}
 
 @endsection

@@ -37,9 +37,10 @@ class EntriesController extends Controller
             });
         }
 
+        $links = $Entries->appends(['sortBy' => $sort])->links();
         $title = "Entries";
 
-        return view('entries.home')->withEntries($Entries)->withTitle($title)->withSort($sort);
+        return view('entries.home')->withEntries($Entries)->withTitle($title)->withSort($sort)->withLinks($links);
     }
 
     /**
