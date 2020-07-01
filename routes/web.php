@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', ['as' => 'home', 'uses' => 'EntriesController@index']);
-Route::get('/home', ['as' => 'home', 'uses' => 'EntriesController@index']);
 
 //authentication
 Auth::routes();
@@ -35,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::group(['prefix' => 'user'], function () {
-        // display user's all posts
+        // display all user entries
         Route::get('myEntries',  ['as' => 'users.myEntries', 'uses' => 'UserController@myEntries']);
     });
     

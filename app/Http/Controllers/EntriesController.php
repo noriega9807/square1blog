@@ -10,24 +10,36 @@ use GuzzleHttp\Exception\RequestException;
 use App\Models\Entries;
 use App\Http\Requests\EntryFormRequest;
 use Auth;
+use Cache;
+use Carbon\Carbon;
 
 class EntriesController extends Controller
 {
     /**
      * Returns view with blog entries
     */
-    public function index()
+    public function index(Request $request)
     {
-        $Entries = Entries::where('active',1)->orderBy('created_at','desc')->paginate(5);
+        $page = $request->has('page') ? $request->query('page') : 1;
+        $sort = $request->has('sortBy') ? $request->query('sortBy') : "desc";
 
-        // $Entries = Cache::remember('entries_page_' . $page, 3, function() use ($event, $sort) {
-        //     return $event->statuses()
-        //         ->with('comments')
-        //         ->latest()
-        //         ->paginate(10);
-        // });
+        if (Cache::has('entries_sort_'.$sort.'_page_'.$page)) 
+        {
+            $Entries = Cache::get('entries_sort_'.$sort.'_page_'.$page);
 
-        return view('entries.home')->withEntries($Entries);
+            if ($Entries->isEmpty())
+                $Entries = Entries::where('active',1)->orderBy('published_at', $sort)->paginate(5);
+        }
+        else
+        {
+            $Entries = Cache::remember('entries_sort_'.$sort.'_page_'.$page, 60, function() use ($sort) {
+                return Entries::where('active',1)->orderBy('published_at', $sort)->paginate(5);
+            });
+        }
+
+        $title = "Entries";
+
+        return view('entries.home')->withEntries($Entries)->withTitle($title)->withSort($sort);
     }
 
     /**
@@ -47,6 +59,7 @@ class EntriesController extends Controller
         $Entry->title = $request->get('title');
         $Entry->description = $request->get('description');
         $Entry->slug = Str::slug($Entry->title);
+        $Entry->published_at = Carbon::now();
 
         $duplicate = Entries::where('slug', $Entry->slug)->first();
         if ($duplicate) 
@@ -65,11 +78,21 @@ class EntriesController extends Controller
     */
     public function show($slug)
     {
-        $Entries = Entries::where('slug',$slug)->first();
-        if(!$Entries)
+        if (Cache::has('entries_slug_' . $slug)) 
+        {
+            $Entry = Cache::get('entries_slug_' . $slug);
+        }
+        else
+        {
+            $Entry = Cache::remember('entries_slug_' . $slug, 60, function() use ($slug) {
+                return Entries::where('slug',$slug)->first();
+            });
+        }
+
+        if(!$Entry)
             return redirect('/')->withErrors('The page that you requested wa not found');
 
-        return view('entries.show')->withEntries($Entries);
+        return view('entries.show')->withEntry($Entry);
     }
 
     /**
@@ -86,6 +109,7 @@ class EntriesController extends Controller
             $Entry->title = $entry["title"];
             $Entry->description = $entry["description"];
             $Entry->slug = Str::slug($entry["title"]);
+            $Entry->published_at = $entry["publication_date"];
 
             $duplicate = Entries::where('slug', $Entry->slug)->first();
             if (!$duplicate) 

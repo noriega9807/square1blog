@@ -28,7 +28,7 @@
                         <div class="py-1 rounded-md bg-white shadow-xs">
                             <a href="{{ route('entries.create') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Add new entry</a>
                             <a href="{{ route('users.myEntries') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My entries</a>
-                            <a href="javascript:;" data-route="{{ route('entries.import') }}" class="modal-import block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Import entries</a>
+                            <a href="javascript:;" data-route="{{ route('entries.import') }}" id="importRoute" class="modal-import block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Import entries</a>
                             <a href="{{ route('logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log out</a>
                         </div>
                     </div>

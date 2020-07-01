@@ -22,10 +22,11 @@ class Entries extends Migration
             $table->string('title')->unique();
             $table->text('description');
             $table->string('slug')->unique();
-            $table->boolean('active');
+            $table->boolean('active')->default(1);
+            $table->dateTime('published_at', 0);
             $table->timestamps();
 
-            $table->index(['entry_id','created_at']);
+            $table->index(['entry_id','published_at']);
         });
     }
 
