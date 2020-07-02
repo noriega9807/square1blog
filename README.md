@@ -14,7 +14,7 @@ Steps for running the project.
 $ composer install
 $ php artisan migrate && php artisan db:seed
 ```
-  - Rename .env.example to .env
+  - (optional) Modify App/Constants to set the pagination number and cache remember time
 
 # Additional notes
 
