@@ -19,11 +19,22 @@ class UserController extends Controller
         if (Cache::has('entries_sort_'.$sort.'_user_'.$user_id.'_page_'.$page)) 
         {
             $Entries = Cache::get('entries_sort_'.$sort.'_user_'.$user_id.'_page_'.$page);
+
+            if ($Entries->isEmpty())
+            {
+                $Entries = Entries::where('user_id', $user_id)
+                    ->orderBy('published_at', $sort)
+                    ->select('title', 'user_id','published_at','description', 'slug')
+                    ->paginate(5);
+            }
         }
         else
         {
             $Entries = Cache::remember('entries_sort_'.$sort.'_user_'.$user_id.'_page_'.$page, 60, function() use ($user_id, $sort) {
-                return Entries::where('user_id', $user_id)->orderBy('published_at', $sort)->paginate(5);
+                return Entries::where('user_id', $user_id)
+                    ->orderBy('published_at', $sort)
+                    ->select('title', 'user_id','published_at','description', 'slug')
+                    ->paginate(5);
             });
         }
         

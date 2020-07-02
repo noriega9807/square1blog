@@ -28,12 +28,20 @@ class EntriesController extends Controller
             $Entries = Cache::get('entries_sort_'.$sort.'_page_'.$page);
 
             if ($Entries->isEmpty())
-                $Entries = Entries::where('active',1)->orderBy('published_at', $sort)->paginate(5);
+            {
+                $Entries = Entries::where('active',1)
+                    ->orderBy('published_at', $sort)
+                    ->select('title', 'user_id','published_at','description', 'slug')
+                    ->paginate(5);
+            }
         }
         else
         {
             $Entries = Cache::remember('entries_sort_'.$sort.'_page_'.$page, 60, function() use ($sort) {
-                return Entries::where('active',1)->orderBy('published_at', $sort)->paginate(5);
+                return Entries::where('active',1)
+                    ->orderBy('published_at', $sort)
+                    ->select('title', 'user_id','published_at','description', 'slug')
+                    ->paginate(5);
             });
         }
 
