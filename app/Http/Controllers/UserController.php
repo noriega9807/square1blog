@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Entries;
+use App\Constants;
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
@@ -25,16 +26,16 @@ class UserController extends Controller
                 $Entries = Entries::where('user_id', $user_id)
                     ->orderBy('published_at', $sort)
                     ->select('title', 'user_id','published_at','description', 'slug')
-                    ->paginate(5);
+                    ->paginate(Constants::PAGINATION);
             }
         }
         else
         {
-            $Entries = Cache::remember('entries_sort_'.$sort.'_user_'.$user_id.'_page_'.$page, 60, function() use ($user_id, $sort) {
+            $Entries = Cache::remember('entries_sort_'.$sort.'_user_'.$user_id.'_page_'.$page, Constants::CACHE_REMEMBER_SEC, function() use ($user_id, $sort) {
                 return Entries::where('user_id', $user_id)
                     ->orderBy('published_at', $sort)
                     ->select('title', 'user_id','published_at','description', 'slug')
-                    ->paginate(5);
+                    ->paginate(Constants::PAGINATION);
             });
         }
         

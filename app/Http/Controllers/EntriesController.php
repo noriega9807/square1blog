@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Exception\RequestException;
 
+use App\Constants;
+
 use App\Models\Entries;
 use App\Http\Requests\EntryFormRequest;
 use Auth;
@@ -32,16 +34,16 @@ class EntriesController extends Controller
                 $Entries = Entries::where('active',1)
                     ->orderBy('published_at', $sort)
                     ->select('title', 'user_id','published_at','description', 'slug')
-                    ->paginate(5);
+                    ->paginate(Constants::PAGINATION);
             }
         }
         else
         {
-            $Entries = Cache::remember('entries_sort_'.$sort.'_page_'.$page, 60, function() use ($sort) {
+            $Entries = Cache::remember('entries_sort_'.$sort.'_page_'.$page, Constants::CACHE_REMEMBER_SEC, function() use ($sort) {
                 return Entries::where('active',1)
                     ->orderBy('published_at', $sort)
                     ->select('title', 'user_id','published_at','description', 'slug')
-                    ->paginate(5);
+                    ->paginate(Constants::PAGINATION);
             });
         }
 
@@ -93,7 +95,7 @@ class EntriesController extends Controller
         }
         else
         {
-            $Entry = Cache::remember('entries_slug_' . $slug, 60, function() use ($slug) {
+            $Entry = Cache::remember('entries_slug_' . $slug, Constants::CACHE_REMEMBER_SEC, function() use ($slug) {
                 return Entries::where('slug',$slug)->first();
             });
         }
