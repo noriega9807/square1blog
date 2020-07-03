@@ -65,3 +65,7 @@ const create_message = (type, message) => {
         </div>`;
     $("#notifications").append(alertHtml);
 }
+
+$(document).on('click', '.alert-toast', function(){
+    $(this).remove();
+});
