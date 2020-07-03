@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\RequestException;
 use App\Constants;
 
 use App\Models\Entries;
+use App\User;
 use App\Http\Requests\EntryFormRequest;
 use Auth;
 use Cache;
@@ -125,18 +126,19 @@ class EntriesController extends Controller
             $duplicate = Entries::where('slug', $Entry->slug)->first();
             if (!$duplicate) 
             {
-                $Entry->user_id = 1;
+                $user = User::where("name", "admin")->select('user_id')->first();
+                $Entry->user_id = $user->user_id;
 
                 if (!$Entry->save())
                 {
-                    $message->notifColor = "red";
+                    $message->notifColor = Constants::ALERT_ERROR;
                     $message->message = "There was an error, please try again";
                     return json_encode((array) $message);
                 }
             }
         }
          
-        $message->notifColor = "green";
+        $message->notifColor = Constants::ALERT_SUCCESS;
         $message->message = "The entries where added successfully";
         return json_encode((array) $message);
     }
