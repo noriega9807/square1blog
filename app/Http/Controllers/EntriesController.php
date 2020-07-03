@@ -126,7 +126,7 @@ class EntriesController extends Controller
             $duplicate = Entries::where('slug', $Entry->slug)->first();
             if (!$duplicate) 
             {
-                $user = User::where("name", "admin")->select('user_id')->first();
+                $user = User::where("email", config('admin.admin_email'))->select('user_id')->first();
                 $Entry->user_id = $user->user_id;
 
                 if (!$Entry->save())
